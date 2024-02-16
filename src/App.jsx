@@ -1,4 +1,5 @@
-import Draggable from 'react-draggable'
+//import Draggable from 'react-draggable'
+import { Rnd } from 'react-rnd'
 import PropTypes from 'prop-types'
 import { useState } from 'react'
 
@@ -17,25 +18,38 @@ function Entity() {
 
   function modifyAttr(id, name, val) {
     const allOtherAttrs = attrs.filter(attr => attr.id != id)
-    setAttrs(allOtherAttrs.concat({id: id, name: name, val: val}))
-    console.log(name)
+    const newlist = allOtherAttrs.concat({id: id, name: name, val: val})
+    setAttrs(newlist.sort((a, b) => a.id - b.id))
   }
 
   function createModifier(id) {
     return (name, val) => modifyAttr(id, name, val)
   }
 
+  function addAttr() {
+    const maxID = attrs.reduce((lowest, currval) => Math.max(lowest, currval.id), 0)
+    setAttrs(attrs.concat({id:maxID+1, name:"Attribute Name", val:"Attribute Value"}))
+  }
+
   const ListItems = attrs.map(attr =>
     <AttributeBox key={attr.id} attrName={attr.name} attrVal={attr.val} editMode={editMode} modifier={createModifier(attr.id)}/>)
 
-  return <Draggable >
-    <div className='bg-black w-60 border'>
+  return <Rnd 
+  default={{
+    x: 0,
+    y: 0,
+    width: 320,
+    height: 200,
+  }}
+  minHeight="20%" minWidth="30%">
+    <div className='overflow-y-scroll h-full bg-black'>
       <table className='w-full'>
         {ListItems}
       </table>
-      <button className='bg-blue-500 rounded hover:bg-blue-600' onClick={toggleEdit}>Edit</button>
     </div>
-  </Draggable>
+    <button className='bg-blue-500 rounded hover:bg-blue-600' onClick={toggleEdit}>Edit</button>
+    <button className='bg-blue-500 rounded hover:bg-blue-600' onClick={addAttr}>Add Attribute</button>
+  </Rnd>
 }
 
 AttributeBox.propTypes = {
